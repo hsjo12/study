@@ -23,7 +23,7 @@ contract Q3NFT is ERC721Enumerable{
     function mint(uint256 _amount) external payable {
         uint8 _id = id;
         address _user = msg.sender;
-        if(_id > MAX) 
+        if(_id+_amount > MAX) 
             revert ExceededMAX();
 
         for(uint i = 0; i<_amount; ++i){
