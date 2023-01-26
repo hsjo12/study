@@ -23,24 +23,6 @@ describe("q2", () => {
     rewards.grantRole(MANAGE, stake.address);
   });
 
-  it.only("user1, user2, user3 mint nfts", async () => {
-    await q2NFT.connect(user3).mint(20, { value: PRICE.mul(20) });
-    expect(await q2NFT.balanceOf(user3.address)).to.eq(20);
-
-    for (let i = 1; i < 11; i++) {
-      await q2NFT
-        .connect(user3)
-        ["safeTransferFrom(address,address,uint256)"](
-          user3.address,
-          stake.address,
-          i
-        );
-    }
-    const tokeIdsOfUser3 = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    await q2NFT.connect(user3).setApprovalForAll(stake.address, true);
-    await stake.connect(user3).stakingNfts(tokeIdsOfUser3);
-  });
-
   it("user1, user2, user3 mint nfts", async () => {
     await q2NFT.connect(user1).mint(1, { value: PRICE });
     await q2NFT.connect(user2).mint(2, { value: PRICE.mul(2) });
@@ -167,5 +149,23 @@ describe("q2", () => {
     );
     expect(balanceOfUser2_1).to.eq(0);
     expect(balanceOfUser2_2).to.eq(ethers.utils.parseEther("10"));
+  });
+
+  it.only("user3 mints and stake nfts", async () => {
+    await q2NFT.connect(user3).mint(20, { value: PRICE.mul(20) });
+    expect(await q2NFT.balanceOf(user3.address)).to.eq(20);
+
+    for (let i = 1; i < 11; i++) {
+      await q2NFT
+        .connect(user3)
+        ["safeTransferFrom(address,address,uint256)"](
+          user3.address,
+          stake.address,
+          i
+        );
+    }
+    const tokeIdsOfUser3 = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    await q2NFT.connect(user3).setApprovalForAll(stake.address, true);
+    await stake.connect(user3).stakingNfts(tokeIdsOfUser3);
   });
 });

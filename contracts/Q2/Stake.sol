@@ -45,15 +45,13 @@ contract Stake is ReentrancyGuard,IERC721Receiver {
 
 
     function stakingNfts(uint256[] calldata tokenIds) external{
-        address _user = msg.sender;
         for(uint256 i = 0; i<tokenIds.length; ++i) {
-            targetNFT.safeTransferFrom(_user, address(this), tokenIds[i]);
+            targetNFT.safeTransferFrom(msg.sender, address(this), tokenIds[i]);
         }
     }
 
     function withdrawNFTs(uint256[] calldata tokenIds) external {
-        address _user = msg.sender;
-        tokenInfo[] storage _userStakingInfo = userStakingInfo[_user];
+        tokenInfo[] storage _userStakingInfo = userStakingInfo[msg.sender];
         if(_userStakingInfo.length == 0) {
             revert NotTokenStaker();
         }
@@ -72,25 +70,23 @@ contract Stake is ReentrancyGuard,IERC721Receiver {
         uint256 _maximum_rewards = ((block.timestamp - _userStakingInfo[_targetIndex].stakingTime)/rewardTime) * rewards;
         
         if(_maximum_rewards > _userStakingInfo[_targetIndex].totalClaimedRewards) {
-          rewardToken.mint(_user,  _maximum_rewards - _userStakingInfo[_targetIndex].totalClaimedRewards);
+          rewardToken.mint(msg.sender,  _maximum_rewards - _userStakingInfo[_targetIndex].totalClaimedRewards);
         }
         
 
         if(_lastIndex != _targetIndex) {
-            userStakingInfo[_user][_targetIndex] = userStakingInfo[_user][_lastIndex]; 
-            _tokenIndex[userStakingInfo[_user][_lastIndex].tokenId] = _targetIndex;
+            userStakingInfo[msg.sender][_targetIndex] = userStakingInfo[msg.sender][_lastIndex]; 
+            _tokenIndex[userStakingInfo[msg.sender][_lastIndex].tokenId] = _targetIndex;
         }
-        delete userStakingInfo[_user][_lastIndex];
+        delete userStakingInfo[msg.sender][_lastIndex];
         delete _tokenIndex[tokenId];
-        targetNFT.safeTransferFrom(address(this), _user, tokenId);
+        targetNFT.safeTransferFrom(address(this), msg.sender, tokenId);
         }
 
     }
-
-
+    
     function withdrawNFT(uint256 tokenId) external {
-        address _user = msg.sender;
-        tokenInfo[] storage _userStakingInfo = userStakingInfo[_user];
+        tokenInfo[] storage _userStakingInfo = userStakingInfo[msg.sender];
         if(_userStakingInfo.length == 0) {
             revert NotTokenStaker();
         }
@@ -103,23 +99,21 @@ contract Stake is ReentrancyGuard,IERC721Receiver {
         uint256 _maximum_rewards = ((block.timestamp - _userStakingInfo[_targetIndex].stakingTime)/rewardTime) * rewards;
         
         if(_maximum_rewards > _userStakingInfo[_targetIndex].totalClaimedRewards) {
-          rewardToken.mint(_user,  _maximum_rewards - _userStakingInfo[_targetIndex].totalClaimedRewards);
+          rewardToken.mint(msg.sender,  _maximum_rewards - _userStakingInfo[_targetIndex].totalClaimedRewards);
         }
 
        
         if(_lastIndex != _targetIndex) {
-            userStakingInfo[_user][_targetIndex] = userStakingInfo[_user][_lastIndex]; 
-            _tokenIndex[userStakingInfo[_user][_lastIndex].tokenId] = _targetIndex;
+            userStakingInfo[msg.sender][_targetIndex] = userStakingInfo[msg.sender][_lastIndex]; 
+            _tokenIndex[userStakingInfo[msg.sender][_lastIndex].tokenId] = _targetIndex;
         }
-        delete userStakingInfo[_user][_lastIndex];
+        delete userStakingInfo[msg.sender][_lastIndex];
         delete _tokenIndex[tokenId];
-        targetNFT.safeTransferFrom(address(this), _user, tokenId);
+        targetNFT.safeTransferFrom(address(this), msg.sender, tokenId);
     }
 
     function claimRewards() external nonReentrant() {
-        address _user = msg.sender;
- 
-        tokenInfo[] storage _userStakingInfo = userStakingInfo[_user];
+        tokenInfo[] storage _userStakingInfo = userStakingInfo[msg.sender];
         uint256 total;
         uint256 _totalClaimedRewards;
         for(uint i = 0; i < _userStakingInfo.length; i++ ) {
@@ -127,7 +121,7 @@ contract Stake is ReentrancyGuard,IERC721Receiver {
             _userStakingInfo[i].totalClaimedRewards = ((block.timestamp - _userStakingInfo[i].stakingTime)/rewardTime) * rewards;
             total += _userStakingInfo[i].totalClaimedRewards;
         }
-        rewardToken.mint(_user, total - _totalClaimedRewards);
+        rewardToken.mint(msg.sender, total - _totalClaimedRewards);
     }
 
     function rewardsOf(address _user) external view returns(uint256) {

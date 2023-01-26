@@ -18,16 +18,17 @@ contract Q1NFT is ERC721("SimpleNFT","SNFT"){
 
     function mint(uint256 _amount) external {
         uint8 _id = id;
-        address _user = msg.sender;
+
         if(_id+_amount > MAX) 
             revert ExceededMAX();
-
+        
         for(uint i = 0; i<_amount; ++i){
-            _mint(_user, _id);
             ++_id;
+            _mint(msg.sender, _id);
         }
         id = _id;
     }
+
 
     function _baseURI() internal pure override(ERC721) returns (string memory) {
         return "ipfs://bafybeiea6y5zjmgrpw4pihkjhehmkqs43mfistpowylzysq75o7uara2fq/";
